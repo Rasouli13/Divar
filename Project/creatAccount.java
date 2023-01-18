@@ -41,10 +41,7 @@ public class creatAccount{
             throw new InvalidPassword();
         if( hasConsecutive(password))
             throw new InvalidPassword();
-        File file = new File("users.txt");
-        FileWriter fw = new FileWriter(file,true);
-        fw.write(password+":");
-        fw.flush();
+
 
     }
     public boolean checkSpelling(String password){
@@ -105,8 +102,6 @@ public class creatAccount{
         return (n & n-1)==0;
     }
     public static void main(String[] args) throws InvalidUsername, IOException, InvalidPassword {
-        creatAccount ca = new creatAccount();
 
-        ca.setPassword("jdbcabh35f752fjj");
     }
 }
