@@ -38,11 +38,13 @@ public class creatAccount{
             FileWriter fw = new FileWriter(file,true);
             fw.write(this.username + ":" + this.password + ":" + this.email);
             fw.flush();
+            fw.close();
         }
         else {
             FileWriter fw = new FileWriter(file,true);
             fw.write("\n" + this.username + ":" + this.password + ":" + this.email);
             fw.flush();
+            fw.close();
         }
     }
 
