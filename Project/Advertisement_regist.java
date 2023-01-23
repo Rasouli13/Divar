@@ -1,8 +1,7 @@
 package Project;
 
 import Project.Exceptions.*;
-
-import javax.jws.Oneway;
+import Project.settings.*;
 import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -13,18 +12,18 @@ public class Advertisement_regist {
     private String adName;
     private String description;
     private double price;
-    private String phone;
+    private String phoneNumber;
     private String adAddress;
-    Advertisement_regist() throws IOException {
+    Advertisement_regist() throws IOException, InterruptedException {
          addAdvertise();
     }
-    public void addAdvertise() throws IOException {
+    public void addAdvertise() throws IOException, InterruptedException {
         setAdName();
         setPrice();
         setImageAddress();
         setDescription();
         setAdAddress();
-        this.phone=SetPhoneNumber.setPhoneNumber();
+        setPhoneNumber();
         File adsFolder = new File("/Advertisements");
         adsFolder.mkdir();
 
@@ -37,25 +36,17 @@ public class Advertisement_regist {
                     "\nPrice"+this.price+
                     "");
     }
-//    public boolean checkName(String nameAdvertise) {
-//        Scanner scanner;
-//        try {
-//             scanner=new Scanner(Advertisements);
-//        } catch (FileNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//        while (scanner.hasNextLine()){
-//            if(scanner.nextLine().contains(nameAdvertise))
-//                return true;
-//        }
-//        return false;
-//    }
+
     public void setAdAddress() {
         boolean success = false;
         while (!success) {
             try {
-                System.out.println("Enter Address(like-> " + "Tehran: Shahriari Square,..." + "):");
+                System.out.println("Enter Address(like-> " + "Tehran: Shahriari Square,..." + "), for Cancel press Enter:");
                 String address = new Scanner(System.in).nextLine();
+                if (address.equals("")){
+                    success = true;
+                    break;
+                }
                 Matcher matcher = Pattern.compile("^([a-zA-Z]+: .+)").matcher(address);
                 if(!matcher.matches())
                     throw new InvalidAddress();
@@ -68,7 +59,7 @@ public class Advertisement_regist {
     }
 
     public void setAdName() {
-        System.out.print("press Enter to exit else Enter advertisement name:");
+        System.out.print("Enter advertisement name, for Cancel press Enter...:");
         String command=(new Scanner(System.in).nextLine());
         if(command.equals(""))
             return;
@@ -76,7 +67,7 @@ public class Advertisement_regist {
     }
 
     public void setDescription() {
-        System.out.print("press Enter to exit else Enter description:");
+        System.out.print("Enter description, for Cancel press Enter:");
         String command=(new Scanner(System.in).nextLine());
         if(command.equals(""))
             return;
@@ -84,7 +75,7 @@ public class Advertisement_regist {
     }
 
     public void setPrice() {
-        System.out.println("press Enter to exit else Enter Price");
+        System.out.println("Enter price, for Cancel press Enter:");
         String command=(new Scanner(System.in).nextLine());
         if(command.equals(""))
             return;
@@ -92,11 +83,19 @@ public class Advertisement_regist {
     }
 
     public void setImageAddress() {
-        System.out.println("press Enter to exit else Enter imageAddress");
+        System.out.println("Enter image address, for Cancel press Enter:");
         String command=(new Scanner(System.in).nextLine());
         if(command.equals(""))
             return;
         this.imageAddress =(new Scanner(System.in).nextLine());
+    }
+    public void setPhoneNumber() throws IOException, InterruptedException {
+        System.out.println("Enter phone number, for Cancel press Enter:");
+        String command=(new Scanner(System.in).nextLine());
+        if(command.equals(""))
+            return;
+        this.imageAddress =(new Scanner(System.in).nextLine());
+        this.phoneNumber=SetPhoneNumber.setPhoneNumber(command);
     }
 
 
