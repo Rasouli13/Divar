@@ -9,8 +9,29 @@ import Project.Exceptions.*;
 
 public class creatAccount{
     private String username, password, email;
+    public creatAccount(String username,String password,String email) throws InvalidUsername, IOException, InvalidPassword, InvalidEmailAddress {
+        addUser(username,password,email);
+    }
 
-    public void setUsername(String username) throws IOException, InvalidUsername {
+
+    private void addUser(String username, String password, String email) throws IOException, InvalidUsername, InvalidPassword, InvalidEmailAddress {
+        setUsername(username);
+        setPassword(password);
+        setEmail(email);
+        File file = new File("users.txt");
+        FileWriter fw = new FileWriter(file,true);
+        if(!file.exists()){
+            file.createNewFile();
+            fw.write(this.username + ":" + this.password + ":" + this.email);
+            fw.flush();
+        }
+        else {
+            fw.write("\n" + this.username + ":" + this.password + ":" + this.email);
+            fw.flush();
+        }
+    }
+
+    private void setUsername(String username) throws IOException, InvalidUsername {
         Matcher matcher = Pattern.compile("^\\w+$").matcher(username);
         if(!matcher.matches())
             throw new InvalidUsername("Invalid username!");
@@ -26,45 +47,33 @@ public class creatAccount{
         this.username = username;
     }
 
-    public void setEmail(String email) throws InvalidEmailAddress {
+    private void setEmail(String email) throws InvalidEmailAddress {
         Matcher matcher = Pattern.compile("^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").matcher(email);
         if(matcher.matches())
             this.email = email;
         else throw new InvalidEmailAddress();
     }
 
-    public void setPassword(String password) throws InvalidPassword, IOException {
+    private void setPassword(String password) throws InvalidPassword{
         if (!checkSpelling(password))
-            throw new InvalidPassword();
+            throw new InvalidPassword("Password must include 8 lowercase characters!");
         if(binaryNotFound(password) && aIsNotEnough(password))
-            throw new InvalidPassword();
-        if( hasConsecutive(password))
-            throw new InvalidPassword();
+            throw new InvalidPassword("Dose not include binary or enough 'a'!'");
+        if( hasOrdered(password))
+            throw new InvalidPassword("Do not use ordered numbers!");
 
         this.password = password;
     }
 
-    public void writeToFile() throws IOException {
-        File file = new File("users.txt");
-        FileWriter fw = new FileWriter(file,true);
-        if(!file.exists()){
-            file.createNewFile();
-            fw.write(this.username + ":" + this.password + ":" + this.email);
-            fw.flush();
-        }
-        else {
-            fw.write("\n" + this.username + ":" + this.password + ":" + this.email);
-            fw.flush();
-        }
-    }
+
 
     //setPassword Methods---------------------------------------------------------------------------------------------------------------------
 
-    public boolean checkSpelling(String password){
-        Matcher matcher = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[a-z]).{8,}$").matcher(password);
+    private boolean checkSpelling(String password){
+        Matcher matcher = Pattern.compile("(?=[a-z0-9@#$%^&+!=]+$)^(?=.*[a-z])(?=.*[0-9])(?=.*[@#$%^&+!=])(?=.{8,}).*$").matcher(password);
         return matcher.matches();
     }
-    public boolean aIsNotEnough(String password){
+    private boolean aIsNotEnough(String password){
         Matcher matcher1 = Pattern.compile("([a])").matcher(password);
         int aCounter=0;
         while (matcher1.find())
@@ -72,12 +81,10 @@ public class creatAccount{
         return aCounter < 2;
     }
 
-    public boolean isConsecutive(String str) {
-        int start;
+    private boolean isOrder(String str) {
         for (int i = 0; i < str.length() / 2; i++) {
             String new_str = str.substring(0, i + 1);
             int num = Integer.parseInt(new_str);
-            start = num;
             while (new_str.length() < str.length()) {
                 num++;
                 new_str = new_str.concat(String.valueOf(num));
@@ -88,16 +95,16 @@ public class creatAccount{
         return false;
     }
 
-    public boolean hasConsecutive(String password){
+    private boolean hasOrdered(String password){
         String[] numbers = password.replaceAll("\\D"," ").split(" ");
         for (String num: numbers)
             if(!num.equals(""))
-                if(isConsecutive(num))
+                if(isOrder(num))
                     return true;
         return false;
     }
 
-    public boolean binaryNotFound(String password){
+    private boolean binaryNotFound(String password){
         String[] numbers = password.replaceAll("\\D"," ").split(" ");
         for (String num: numbers)
             if(!num.equals("")){
@@ -113,17 +120,10 @@ public class creatAccount{
         return true;
     }
 
-    public boolean containBinary(String s) {
+    private boolean containBinary(String s) {
         int n = Integer.parseInt(s);
         return (n & n-1)==0;
     }
 
     //End setPassword Methods------------------------------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) throws InvalidUsername, IOException, InvalidPassword, InvalidEmailAddress {
-        creatAccount ca = new creatAccount();
-        ca.setUsername("abcd");
-        ca.setPassword("hdcbjs65656");
-        ca.setEmail("example.2@example.com");
-    }
 }
