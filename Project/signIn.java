@@ -3,14 +3,14 @@ package Project;
 import Project.Exceptions.*;
 
 import java.io.*;
-import java.util.Scanner;
+import java.util.*;
 
-public class signIn {
+public class signIn extends User {
     public signIn() throws IOException, InterruptedException {
         checkUser();
     }
 
-    private void checkUser() throws IOException, InterruptedException {
+    protected void checkUser() throws IOException, InterruptedException {
         boolean seccess = false;
         boolean notFound = true;
         do {
@@ -19,23 +19,31 @@ public class signIn {
                 String username = new Scanner(System.in).nextLine();
                 System.out.print("Enter your password:");
                 String password = new Scanner(System.in).nextLine();
-                File file = new File("users.txt");
-                if (file.exists()) {
-                    Scanner scanner = new Scanner(file);
-                    while (scanner.hasNextLine()){
-                        String[] userPass = scanner.nextLine().split(":");
-                        if (userPass[0].equals(username)){
-                            String[] keyPass = userPass[1].split("-");
-                            String pass = decrypt(keyPass[0], Integer.parseInt(keyPass[1]));
-                            if (pass.equals(password)){
-                                seccess =true;
-                                notFound = false;
+
+                File usersFolder = new File("/users");
+                if(usersFolder.exists()) {
+                    File[] users = usersFolder.listFiles();
+                    for (File file : Objects.requireNonNull(users)) {
+                        if (file.exists()) {
+                            Scanner scanner = new Scanner(file);
+                            while (scanner.hasNextLine()) {
+                                String[] user = scanner.nextLine().split(":");
+                                String[] pass = scanner.nextLine().split(":");
+                                if (user[1].equals(username)) {
+                                    String[] passKey = pass[1].split("-");
+                                    if ((decrypt(passKey[0], Integer.parseInt(passKey[1]))).equals(password)) {
+                                        seccess = true;
+                                        notFound = false;
+                                        this.username = username;
+                                        this.password = password;
+                                    }
+                                }
                             }
                         }
                     }
-                    if (notFound)
-                        throw new UsernameNotFound();
                 }
+                if (notFound)
+                    throw new UsernameNotFound();
             }catch (UsernameNotFound e){
                 System.out.println(e);
                 System.out.println("\npress any key to continue...");
