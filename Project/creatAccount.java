@@ -1,12 +1,8 @@
 package Project;
 
+import Project.sets.*;
 import java.io.*;
-import java.util.Random;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import Project.Exceptions.*;
 
 public class creatAccount{
     private String username, password, email;
@@ -42,11 +38,9 @@ public class creatAccount{
                 "\nPassword:" + this.password +
                 "\nEmail:" + this.email +
                 "\nFullname:" +
-                "\nLocation:" +
                 "\nPhone number:");
         fw.flush();
-
-
+        fw.close();
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
