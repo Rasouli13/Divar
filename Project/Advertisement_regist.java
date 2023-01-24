@@ -24,17 +24,20 @@ public class Advertisement_regist {
         setDescription();
         setAdAddress();
         setPhoneNumber();
-        File adsFolder = new File("/Advertisements");
+        File adsFolder = new File("Project/Advertisements");
         adsFolder.mkdir();
 
         String fileName = this.adName.replaceAll("[\\/\\\\:?\"<>|*]","");
-        File file = new File("/Advertisements/"+fileName+".txt");
+        File file = new File("Project/Advertisements/"+fileName+".txt");
         file.createNewFile();
 
         FileWriter fw = new FileWriter(file);
-        fw.write("Name:"+this.adName+
-                    "\nPrice"+this.price+
-                    "");
+        fw.write("Name: "+this.adName+
+                    "\nPrice: "+this.price+
+                    "\nImage address: "+this.imageAddress+
+                "\nAd address: "+this.imageAddress+
+                "\nPhone number: "+this.phoneNumber+
+                "\nDescription: "+this.description);
     }
 
     public void setAdAddress() {

@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Profile extends User {
@@ -125,7 +126,7 @@ public class Profile extends User {
     }
 
     private void editUserFile(String baseAddress,String key,String old, String New) throws IOException {
-        List<String> fileContent = new ArrayList<>(Files.readAllLines(Path.of(baseAddress), StandardCharsets.UTF_8));
+        List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get((baseAddress)), StandardCharsets.UTF_8));
         for (int i = 0; i < fileContent.size(); i++) {
             System.out.println(fileContent.get(i));
             if (fileContent.get(i).equals(key+old)) {
@@ -133,6 +134,6 @@ public class Profile extends User {
                 break;
             }
         }
-        Files.write(Path.of(baseAddress), fileContent, StandardCharsets.UTF_8);
+        Files.write(Paths.get((baseAddress)), fileContent, StandardCharsets.UTF_8);
     }
 }
