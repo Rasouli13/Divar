@@ -6,45 +6,42 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class Profile extends User {
-    public void showProfile() throws Exception {
+public class Profile {
+    public void showProfile(clientManager client) throws Exception {
         File usersFolder = new File("Project/users");
-        String fileName = this.username.replaceAll("[\\/\\\\:?\"<>|*]","");
+        String username = client.getUsername();
         if(usersFolder.exists()) {
             File[] users = usersFolder.listFiles();
             for (File file : Objects.requireNonNull(users)) {
-                if (file.getName().equals(fileName)) {
-                    File profile = new File("Project/users/"+fileName+"/profile.txt");
+                if (file.getName().equals(username)) {
+                    File profile = new File("Project/users/"+username+"/profile.txt");
                     Scanner scanner = new Scanner(profile);
-                    String[] username = scanner.nextLine().split(":");
-                    if(username[1].equals(this.username)) {
+                    String[] user = scanner.nextLine().split(":");
+                    if(user[1].equals(username)) {
                         scanner = new Scanner(profile);
                         while (scanner.hasNextLine()) {
                             while (scanner.hasNextLine()) {
-                                System.out.println(scanner.nextLine());
+                                clientManager.sendMessage(scanner.nextLine());
                             }
                         }
                         while (true) {
-                            System.out.print("\n\n1.Edit\n2.Exit\n\nChoose number:");
-                            String edit = new Scanner(System.in).nextLine();
+                            clientManager.sendMessage("\n\n1.Edit\n2.Exit\n\nChoose number:");
+                            String edit = clientManager.getMessage();
                             if (edit.equals("1")){
-                                editProfile(file.getPath()+"/profile.txt");
+                                editProfile(file.getPath()+"/profile.txt",client);
                             }
                             else if (edit.equals("2")){
-                                break;
+                                return;
                             }
                         }
                     }
-
                 }
             }
         }
     }
 
-    private void editProfile(String baseAddress) throws IOException, InterruptedException {
-        String username,password,email,fullName,phoneNumber;
-        new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-        System.out.print("Edit:\n" +
+    private void editProfile(String baseAddress, clientManager client) throws IOException {
+        clientManager.sendMessage("Edit:\n" +
                 "\t1.Username\n" +
                 "\t2.Password\n" +
                 "\t3.Email\n" +
@@ -53,75 +50,69 @@ public class Profile extends User {
                 "\nChoose number:");
         boolean success = false;
         while (!success) {
-            String edit = new Scanner(System.in).nextLine();
+            String edit = clientManager.getMessage();
             switch (edit) {
                 case "1":
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                    System.out.print("Enter a username, for Exit press Enter:");
-                    username = new Scanner(System.in).nextLine();
-                    if(username.equals("")){
+                    clientManager.sendMessage("Enter a username, or type cancel:");
+                    String newUsername = setUsername.setUsername(clientManager.getMessage());
+                    if(newUsername.equals("cancel")){
                         success=true;
                         break;
                     }
-                    editUserFile(baseAddress,"Username:",this.username,username);
-                    this.username = setUsername.setUsername(username);
+                    editUserFile(baseAddress,"Username:",client.getUsername(),newUsername);
+                    client.setUsername(newUsername);
                     success = true;
                     break;
 
                 case "2":
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                    System.out.print("Enter a password, for Exit press Enter:");
-                    password = new Scanner(System.in).nextLine();
-                    if(password.equals("")){
+                    clientManager.sendMessage("Enter a password, or type cancel:");
+                    String newPassword = setPassword.setPassword(clientManager.getMessage());
+                    if(newPassword.equals("cancel")){
                         success=true;
                         break;
                     }
-                    editUserFile(baseAddress,"Password:",this.password,setPassword.setPassword(password));
-                    this.password = setPassword.setPassword(password);
+                    editUserFile(baseAddress,"Password:",client.getPassword(),newPassword);
+                    client.setPassword(newPassword);
                     success = true;
                     break;
 
                 case "3":
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                    System.out.print("Enter an email, for Exit press Enter:");
-                    email = new Scanner(System.in).nextLine();
-                    if(email.equals("")){
+                    clientManager.sendMessage("Enter an email, or type cancel:");
+                    String newEmail = setEmail.setEmail(clientManager.getMessage());
+                    if(newEmail.equals("cancel")){
                         success=true;
                         break;
                     }
-                    editUserFile(baseAddress,"Email:",this.email,setEmail.setEmail(email));
-                    this.email = setEmail.setEmail(email);
+                    editUserFile(baseAddress,"Email:",client.getEmail(),newEmail);
                     success = true;
                     break;
 
                 case "4":
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                    System.out.print("Enter fullname, for Exit press Enter:");
-                    fullName = new Scanner(System.in).nextLine();
-                    if(fullName.equals("")){
+                    System.out.print("Enter fullname, or type cancel:");
+                    String newFullName = clientManager.getMessage();
+                    if(newFullName.equals("cancel")){
                         success=true;
                         break;
                     }
-                    editUserFile(baseAddress,"Full name",this.fullName,fullName);
-                    this.fullName = fullName;
+                    editUserFile(baseAddress,"Full name",client.getFullName(),newFullName);
+                    client.setFullName(newFullName);
                     success = true;
                     break;
 
                 case "5":
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                    System.out.print("Enter phone number, for Exit press Enter:");
-                    phoneNumber = new Scanner(System.in).nextLine();
-                    if(phoneNumber.equals("")){
+                    clientManager.sendMessage("Enter phone number, or type cancel:");
+                    String newPhoneNumber = SetPhoneNumber.setPhoneNumber(clientManager.getMessage());
+                    if(newPhoneNumber.equals("cancel")){
                         success=true;
                         break;
                     }
-                    editUserFile(baseAddress,"Phone number:",this.phoneNumber,SetPhoneNumber.setPhoneNumber(phoneNumber));
-                    this.phoneNumber = SetPhoneNumber.setPhoneNumber(phoneNumber);
+                    editUserFile(baseAddress,"Phone number:",client.getPhoneNumber(),newPhoneNumber);
+                    client.setPhoneNumber(newPhoneNumber);
                     success = true;
                     break;
 
                 default:
-                    System.out.print("Enter a valid number:");
+                    clientManager.sendMessage("Enter a valid number:");
                     break;
             }
         }

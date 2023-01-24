@@ -1,6 +1,7 @@
 package Project.settings;
 
 import Project.Exceptions.InvalidEmailAddress;
+import Project.clientManager;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -9,29 +10,24 @@ import java.util.regex.Pattern;
 
 public class setEmail {
     public static
-    String setEmail(String email) throws IOException, InterruptedException {
+    String setEmail(String email){
         boolean success = false;
         do {
             try {
-                if(email.equals(""))
+                if(email.equals("cancel"))
                     break;
                 Matcher matcher = Pattern.compile("^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").matcher(email);
                 if (matcher.matches()) {
                     return email;
                 } else throw new InvalidEmailAddress();
             }catch (InvalidEmailAddress e){
-                System.out.println(e);
-                System.out.println("\npress Enter to continue...");
-                new Scanner(System.in).nextLine();
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                System.out.print("Enter a valid email:");
-                email = new Scanner(System.in).nextLine();
-            }catch (Exception e){
-                System.out.println(e);
-                System.out.println("\npress Enter to continue...");
-                new Scanner(System.in).nextLine();
+                clientManager.sendMessage(e.toString());
+                clientManager.sendMessage("\nEnter a valid email, or type cancel:");
+                email = clientManager.getMessage();
+            }catch (Exception e) {
+                clientManager.sendMessage(e.toString());
             }
         }while (!success);
-        return email;
+        return "/CANCEL/";
     }
 }

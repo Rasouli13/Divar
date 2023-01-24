@@ -26,7 +26,7 @@ public class Advertisement_regist extends User {
         setAdAddress();
         setPhoneNumber();
         String fileName = this.adName.replaceAll("[\\/\\\\:?\"<>|*]","");
-        File adsFolder = new File("/Advertisements");
+        File adsFolder = new File("Project/Advertisements");
         adsFolder.mkdir();
         File file = new File("Project/Advertisements/"+fileName+".txt");
         file.createNewFile();
