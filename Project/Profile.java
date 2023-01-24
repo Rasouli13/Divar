@@ -121,7 +121,6 @@ public class Profile {
     private void editUserFile(String baseAddress,String key,String old, String New) throws IOException {
         List<String> fileContent = new ArrayList<>(Files.readAllLines(Path.of(baseAddress), StandardCharsets.UTF_8));
         for (int i = 0; i < fileContent.size(); i++) {
-            System.out.println(fileContent.get(i));
             if (fileContent.get(i).equals(key+old)) {
                 fileContent.set(i,(key+New));
                 break;
