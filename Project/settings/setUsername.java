@@ -14,11 +14,13 @@ public class setUsername {
                 Matcher matcher = Pattern.compile("^\\w+$").matcher(username);
                 if (!matcher.matches())
                     throw new InvalidUsername("Invalid username!");
-                File usersFolder = new File("/users");
+                String fileName = username.replaceAll("[\\/\\\\:?\"<>|*]","");
+                File usersFolder = new File("Project/users");
                 if(usersFolder.exists()) {
                     File[] users = usersFolder.listFiles();
                     for (File file : Objects.requireNonNull(users)) {
-                        if (file.exists()) {
+                        if (file.getName().equals(fileName)) {
+                            File profile = new File("Project/users/"+fileName+"/profile.txt");
                             Scanner scanner = new Scanner(file);
                             String[] user = scanner.nextLine().split(":");
                             if (user[1].equals(username))

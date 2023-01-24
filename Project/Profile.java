@@ -9,30 +9,33 @@ import java.util.*;
 public class Profile extends User {
     public void showProfile() throws Exception {
         File usersFolder = new File("Project/users");
+        String fileName = this.username.replaceAll("[\\/\\\\:?\"<>|*]","");
         if(usersFolder.exists()) {
             File[] users = usersFolder.listFiles();
             for (File file : Objects.requireNonNull(users)) {
-                if (file.exists()) {
-                    Scanner scanner = new Scanner(file);
-                    while (scanner.hasNextLine()) {
-                        String[] user = scanner.nextLine().split(":");
-                        if (user[1].equals(this.username)) {
-                            scanner = new Scanner(file);
-                            while (scanner.hasNextLine()){
+                if (file.getName().equals(fileName)) {
+                    File profile = new File("Project/users/"+fileName+"/profile.txt");
+                    Scanner scanner = new Scanner(profile);
+                    String[] username = scanner.nextLine().split(":");
+                    if(username[1].equals(this.username)) {
+                        scanner = new Scanner(profile);
+                        while (scanner.hasNextLine()) {
+                            while (scanner.hasNextLine()) {
                                 System.out.println(scanner.nextLine());
                             }
-                            while (true) {
-                                System.out.print("\n\n1.Edit\n2.Exit\n\nChoose number:");
-                                String edit = new Scanner(System.in).nextLine();
-                                if (edit.equals("1")){
-                                    editProfile(file.getPath());
-                                }
-                                else if (edit.equals("2")){
-                                    break;
-                                }
+                        }
+                        while (true) {
+                            System.out.print("\n\n1.Edit\n2.Exit\n\nChoose number:");
+                            String edit = new Scanner(System.in).nextLine();
+                            if (edit.equals("1")){
+                                editProfile(file.getPath()+"/profile.txt");
+                            }
+                            else if (edit.equals("2")){
+                                break;
                             }
                         }
                     }
+
                 }
             }
         }

@@ -38,9 +38,9 @@ public class creatAccount{
 
 
         String fileName = this.username.replaceAll("[\\/\\\\:?\"<>|*]","");
-        File usersFolder = new File("Project/users");
+        File usersFolder = new File("Project/users/"+fileName);
         usersFolder.mkdir();
-        File file = new File("Project/users/"+fileName+".txt");
+        File file = new File("Project/users/"+fileName+"/profile.txt");
         file.createNewFile();
         FileWriter fw = new FileWriter(file);
         fw.write("Username:" + this.username +

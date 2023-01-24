@@ -19,13 +19,14 @@ public class signIn extends User {
                 String username = new Scanner(System.in).nextLine();
                 System.out.print("Enter your password:");
                 String password = new Scanner(System.in).nextLine();
-
-                File usersFolder = new File("/users");
+                String fileName = username.replaceAll("[\\/\\\\:?\"<>|*]","");
+                File usersFolder = new File("Project/users");
                 if(usersFolder.exists()) {
                     File[] users = usersFolder.listFiles();
                     for (File file : Objects.requireNonNull(users)) {
-                        if (file.exists()) {
-                            Scanner scanner = new Scanner(file);
+                        if (file.getName().equals(fileName)) {
+                            File profile = new File("Project/users/"+fileName+"/profile.txt");
+                            Scanner scanner = new Scanner(profile);
                             while (scanner.hasNextLine()) {
                                 String[] user = scanner.nextLine().split(":");
                                 String[] pass = scanner.nextLine().split(":");
