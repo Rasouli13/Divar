@@ -7,36 +7,39 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class Profile {
-    public void showProfile(clientManager client) throws Exception {
-        File usersFolder = new File("Project/users");
-        String username = client.getUsername();
-        if(usersFolder.exists()) {
-            File[] users = usersFolder.listFiles();
-            for (File file : Objects.requireNonNull(users)) {
-                if (file.getName().equals(username)) {
-                    File profile = new File("Project/users/"+username+"/profile.txt");
-                    Scanner scanner = new Scanner(profile);
-                    String[] user = scanner.nextLine().split(":");
-                    if(user[1].equals(username)) {
-                        scanner = new Scanner(profile);
-                        while (scanner.hasNextLine()) {
+    public void showProfile(clientManager client) {
+        try {
+            File usersFolder = new File("Project/users");
+            String username = client.getUsername();
+            if (usersFolder.exists()) {
+                File[] users = usersFolder.listFiles();
+                for (File file : Objects.requireNonNull(users)) {
+                    if (file.getName().equals(username)) {
+                        File profile = new File("Project/users/" + username + "/profile.txt");
+                        Scanner scanner = new Scanner(profile);
+                        String[] user = scanner.nextLine().split(":");
+                        if (user[1].equals(username)) {
+                            scanner = new Scanner(profile);
                             while (scanner.hasNextLine()) {
-                                clientManager.sendMessage(scanner.nextLine());
+                                while (scanner.hasNextLine()) {
+                                    clientManager.sendMessage(scanner.nextLine());
+                                }
                             }
-                        }
-                        while (true) {
-                            clientManager.sendMessage("\n\n1.Edit\n2.Exit\n\nChoose number:");
-                            String edit = clientManager.getMessage();
-                            if (edit.equals("1")){
-                                editProfile(file.getPath()+"/profile.txt",client);
-                            }
-                            else if (edit.equals("2")){
-                                return;
+                            while (true) {
+                                clientManager.sendMessage("\n\n1.Edit\n2.Exit\n\nChoose number:");
+                                String edit = clientManager.getMessage();
+                                if (edit.equals("1")) {
+                                    editProfile(file.getPath() + "/profile.txt", client);
+                                } else if (edit.equals("2")) {
+                                    return;
+                                }
                             }
                         }
                     }
                 }
             }
+        }catch (Exception e ){
+            clientManager.sendMessage(e.toString());
         }
     }
 

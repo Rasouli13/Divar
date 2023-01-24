@@ -34,28 +34,28 @@ public class clientManager extends Thread{
                     //Username
                     sendMessage("Enter a Username, or type cancel:");
                     String username = getMessage();
-                    username = setUsername.setUsername(username);
                     if (username.equals("cancel")) {
                         break;
                     }
+                    username = setUsername.setUsername(username);
                     this.username = username;
 
                     //Password
                     sendMessage("Enter a Password, or type cancel:");
                     String password = getMessage();
-                    password = setPassword.setPassword(password);
                     if (password.equals("cancel")) {
                         break;
                     }
+                    password = setPassword.setPassword(password);
                     this.password = password;
 
                     //Email
                     sendMessage("Enter a Email, or type cancel:");
                     String email = getMessage();
-                    email = setPassword.setPassword(email);
                     if (email.equals("cancel")) {
                         break;
                     }
+                    email = setPassword.setPassword(email);
                     this.email = email;
 
                     new signUp(username, password, email);
@@ -72,7 +72,7 @@ public class clientManager extends Thread{
                     if(password.equals("cancel")){
                         break;
                     }
-                    boolean success = new signIn().checkUser(username,password);
+                    boolean success = new signIn().checkUser(this);
                     if (success) {
                         this.username = username;
                         this.password = password;
@@ -87,8 +87,12 @@ public class clientManager extends Thread{
                             String signedIn = getMessage();
                             switch (signedIn){
                                 case "1":
+                                    new Profile().showProfile(this);
+                                    break;
                                 case "2":
+                                    new Advertisement_regist(this);
                                 case "3":
+                                    new AdvertisementsPages(this);
                                 case "4":
                                     mainMenu = true;
                                     break;
