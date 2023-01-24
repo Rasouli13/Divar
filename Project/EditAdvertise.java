@@ -46,6 +46,9 @@ public void EditAds(clientManager client) throws IOException {
                     EditDescription();EditUpgrade();break;
                 case "7":
                     success=true;break;
+                default:
+                    clientManager.sendMessage("Enter a valid number");break;
+
             }
         }
     }
@@ -109,7 +112,6 @@ public void EditName() throws IOException {
     private void editUserAd(String baseAddress,String key,String old, String New) throws IOException {
         List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(baseAddress), StandardCharsets.UTF_8));
         for (int i = 0; i < fileContent.size(); i++) {
-            System.out.println(fileContent.get(i));
             if (fileContent.get(i).equals(key+old)) {
                 fileContent.set(i,(key+New));
                 break;
