@@ -101,10 +101,10 @@ public void EditName() throws IOException {
     }
 
     public void EditUpgrade() throws IOException {
-        String lP=LocalDateTime.now().toString();
-        clientManager.sendMessage("Advertise Upgraded at"+lP);
-        String oldDescription=Files.readAllLines(Paths.get(subjectFile.getPath())).get(6).substring(12);
-        editUserAd(subjectFile.getPath(),"LastUpgrade:",oldDescription,lP);
+        String lastUpgrade=LocalDateTime.now().toString();
+        clientManager.sendMessage("Advertise Upgraded at"+lastUpgrade);
+        String oldTime=Files.readAllLines(Paths.get(subjectFile.getPath())).get(6).substring(12);
+        editUserAd(subjectFile.getPath(),"LastUpgrade:",oldTime,lastUpgrade);
     }
     private void editUserAd(String baseAddress,String key,String old, String New) throws IOException {
         List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(baseAddress), StandardCharsets.UTF_8));
