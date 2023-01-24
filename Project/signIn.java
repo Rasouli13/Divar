@@ -15,9 +15,9 @@ public class signIn extends User {
         boolean notFound = true;
         do {
             try {
-                System.out.print("Enter your username:");
+                System.out.print("Enter your username, for Cancel press Enter:");
                 String username = new Scanner(System.in).nextLine();
-                System.out.print("Enter your password:");
+                System.out.print("Enter your password, for Cancel press Enter:");
                 String password = new Scanner(System.in).nextLine();
                 String fileName = username.replaceAll("[\\/\\\\:?\"<>|*]","");
                 File usersFolder = new File("Project/users");
@@ -37,6 +37,9 @@ public class signIn extends User {
                                         notFound = false;
                                         this.username = username;
                                         this.password = password;
+                                        System.out.println("Your are Signed in!");
+                                        System.out.println("\npress Enter to continue...");
+                                        new Scanner(System.in).nextLine();
                                     }
                                 }
                             }

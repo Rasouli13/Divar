@@ -1,11 +1,15 @@
 package Project.settings;
 import Project.Exceptions.InvalidUsername;
+import Project.Server;
+import Project.clientAccepter;
+
 import java.io.*;
+import java.net.ServerSocket;
 import java.util.*;
 import java.util.regex.*;
 
 public class setUsername {
-    public static String setUsername(String username) throws IOException, InterruptedException {
+    public static String setUsername(String username){
         boolean success = false;
         do {
             try {
@@ -30,10 +34,9 @@ public class setUsername {
                 }
                 return username;
             }catch (InvalidUsername e){
-                System.out.println(e);
+                clientAccepter.sendMessage(e.toString());
                 System.out.println("\npress Enter to continue...");
                 new Scanner(System.in).nextLine();
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
                 System.out.print("Enter a valid username:");
                 username =  new Scanner(System.in).nextLine();
             }catch (IOException e){
