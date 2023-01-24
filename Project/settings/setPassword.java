@@ -1,6 +1,7 @@
 package Project.settings;
 
 import Project.Exceptions.InvalidPassword;
+import Project.clientManager;
 
 import java.io.IOException;
 import java.util.Random;
@@ -9,14 +10,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class setPassword {
-    static public String setPassword(String password) throws IOException, InterruptedException {
+    static public String setPassword(String password){
         boolean success = false;
         do {
             try {
-                if(password.equals(""))
+                if(password.equals("cancel"))
                     break;
                 if (!checkSpelling(password))
-                    throw new InvalidPassword("Password must include 8 lowercase characters, numbers, and at least one of these: @#$%^&+!?=_");
+                    throw new InvalidPassword("Password must include 8 lowercase characters, numbers, and at least one of thsese: @#$%^&+!?=_");
                 if (binaryNotFound(password) && aIsNotEnough(password))
                     throw new InvalidPassword("Dose not include binary or enough 'a'!'");
                 if (hasOrdered(password))
@@ -24,17 +25,14 @@ public class setPassword {
                 int key = new Random().nextInt(100)+1;
                  return encrypt(password,key);
             }catch (InvalidPassword e){
-                System.out.println(e);
-                System.out.println("\npress Enter to continue...");
-                new Scanner(System.in).nextLine();
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                System.out.print("Enter valid password:");
-                password = new Scanner(System.in).nextLine();
+                clientManager.sendMessage(e.toString());
+                clientManager.sendMessage("\nEnter valid password, or type cancel:");
+                password = clientManager.getMessage();
             }catch (Exception e){
                 System.out.println(e);
             }
         }while (!success);
-        return password;
+        return "/CANCEL/";
     }
 
 
@@ -42,7 +40,7 @@ public class setPassword {
     //setPassword Methods---------------------------------------------------------------------------------------------------------------------
 
     private static boolean checkSpelling(String password){
-        Matcher matcher = Pattern.compile("(?=[a-z0-9@#$%^&+!?=_]+$)^(?=.*[a-z])(?=.*[0-9])(?=.{8,}).*$").matcher(password);
+        Matcher matcher = Pattern.compile("(?=[a-z0-9@#$%^&+!?=_]+$)^(?=.*[a-z])(?=.*[0-9])(?=.*[@#$%^&+!?=_])(?=.{8,}).*$").matcher(password);
         return matcher.matches();
     }
     private static boolean aIsNotEnough(String password){
