@@ -25,9 +25,9 @@ public class clientManager extends Thread{
     }
     @Override
     public void run() {
-        boolean Cancel = false;
-        while (!Cancel) {
-            sendMessage("1.Creat Account\n2.Sign In\n\nChoose a number:");
+        boolean exit = false;
+        while (!exit) {
+            sendMessage("1.Creat Account\n2.Sign In\n3.Exit\n\nChoose a number:");
             String menu  = getMessage();
             switch (menu) {
                 case "1": {
@@ -36,7 +36,6 @@ public class clientManager extends Thread{
                     String username = getMessage();
                     username = setUsername.setUsername(username);
                     if (username.equals("cancel")) {
-                        Cancel = true;
                         break;
                     }
                     this.username = username;
@@ -46,7 +45,6 @@ public class clientManager extends Thread{
                     String password = getMessage();
                     password = setPassword.setPassword(password);
                     if (password.equals("cancel")) {
-                        Cancel = true;
                         break;
                     }
                     this.password = password;
@@ -56,7 +54,6 @@ public class clientManager extends Thread{
                     String email = getMessage();
                     email = setPassword.setPassword(email);
                     if (email.equals("cancel")) {
-                        Cancel = true;
                         break;
                     }
                     this.email = email;
@@ -68,13 +65,11 @@ public class clientManager extends Thread{
                     sendMessage("Enter your username, or type Cancel:");
                     String username = getMessage();
                     if(username.equals("cancel")){
-                        Cancel = true;
                         break;
                     }
                     sendMessage("Enter your password, for Cancel press Enter:");
                     String password = getMessage();
                     if(password.equals("cancel")){
-                        Cancel = true;
                         break;
                     }
                     boolean success = new signIn().checkUser(username,password);
@@ -82,8 +77,33 @@ public class clientManager extends Thread{
                         this.username = username;
                         this.password = password;
                         initialSettings(username);
+                        boolean mainMenu = false;
+                        while (!mainMenu){
+                            sendMessage("\n1.Profile" +
+                                    "\n2.Add an advertisement" +
+                                    "\n3.Advertisements page" +
+                                    "\n4.Sign Out...\n" +
+                                    "\nChoose a number:");
+                            String signedIn = getMessage();
+                            switch (signedIn){
+                                case "1":
+                                case "2":
+                                case "3":
+                                case "4":
+                                    mainMenu = true;
+                                    break;
+                            }
+                        }
                     }
+                    break;
                 }
+                case "3":
+                    sendMessage("See You SOON!!!");
+                    exit = true;
+                    break;
+                default:
+                    sendMessage("\n!Enter a valid number!\n");
+                    break;
             }
 
         }

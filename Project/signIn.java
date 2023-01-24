@@ -5,7 +5,7 @@ import Project.Exceptions.*;
 import java.io.*;
 import java.util.*;
 
-public class signIn {
+public class signIn extends User {
     protected boolean checkUser(String username, String password) {
         do {
             try {
