@@ -64,7 +64,7 @@ class clientManager extends Thread{
     public void run() {
         boolean exit = false;
         while (!exit) {
-            sendMessage("1.Creat Account\n2.Sign In\n\nChoose a number, or type exit:");
+            sendMessage("1.Sign Up\n2.Sign In\n\nChoose a number, or type exit:");
             String menu  = getMessage();
             switch (menu) {
                 case "1": {
@@ -97,6 +97,7 @@ class clientManager extends Thread{
                     this.email = email;
 
                     new signUp().addUser(this,this.username, this.password, this.email);
+                    sendMessage("Your account created successfully:)");
                     break;
                 }
                 case "2": {
@@ -110,15 +111,12 @@ class clientManager extends Thread{
                     if(password.equals("cancel")){
                         break;
                     }
-                    boolean userSignedIn = Server.containUser(username,password);
-                    boolean successSignIn = false;
-                    if (!userSignedIn) {
-                        successSignIn = new signIn().checkUser(this, username, password);
 
-                    }else
-                        sendMessage("Your already signed in on another device, please sign out fist");
+                    boolean successSignIn = false;
+                    successSignIn = new signIn().checkUser(this, username, password);
+
                     if (successSignIn) {
-                        sendMessage("Your are Signed in!");
+                        sendMessage("Your are Signed in:)");
                         this.username = username;
                         this.password = password;
                         initialSettings(username);
@@ -127,8 +125,9 @@ class clientManager extends Thread{
                         while (!mainMenu){
                             sendMessage("\n1.Profile" +
                                     "\n2.Add an advertisement" +
-                                    "\n3.Advertisements page" +
-                                    "\n4.Sign Out...\n" +
+                                    "\n3.Edit your Advertisement" +
+                                    "\n4.Advertisements page" +
+                                    "\n5.Sign Out...\n" +
                                     "\nChoose a number:");
                             String signedIn = getMessage();
                             switch (signedIn){
@@ -139,11 +138,17 @@ class clientManager extends Thread{
                                     new Advertisement_registry().addAdvertise(this);
                                     break;
                                 case "3":
-                                    new AdvertisementsPages(this);
+                                    new EditAdvertise(this);
                                     break;
                                 case "4":
+                                    new AdvertisementsPages(this);
+                                    break;
+                                case "5":
                                     new signOut().reset(this);
                                     mainMenu = true;
+                                    break;
+                                default:
+                                    sendMessage("Enter a valid number!");
                                     break;
                             }
                         }
@@ -381,7 +386,6 @@ class setPassword {
     }
     //End Project.setPassword Methods------------------------------------------------------------------------------------------------------------------------
 }
-
 class SetPhoneNumber {
     public String setPhoneNumber(clientManager client, String phoneNumber){
         while(true){
@@ -401,7 +405,6 @@ class SetPhoneNumber {
         return "cancel";
     }
 }
-
 class setUsername {
     public String setUsername(clientManager client, String username){
         boolean success = false;
@@ -469,7 +472,6 @@ class UsernameNotFound extends Exception{
         super("There is no such user!");
     }
 }
-
 class Advertisement_registry {
     private String imageAddress;
     private String adName;
@@ -601,6 +603,7 @@ class Advertisement_registry {
             try {
                 client.sendMessage("Enter image address, or type cancel:");
                 String command = client.getMessage();
+                command=command.replace("\\","/");
                 if (command.equals("cancel"))
                     return;
                 File imageAddress=new File(command);
@@ -621,7 +624,7 @@ class Advertisement_registry {
         String command = client.getMessage();
         if (command.equals("cancel"))
             return;
-        //this.phoneNumber =new SetPhoneNumber().setPhoneNumber(client,command);
+        this.phoneNumber =new SetPhoneNumber().setPhoneNumber(client,command);
     }
 
     public void setLastUpgrade(clientManager client) {
@@ -903,7 +906,163 @@ class  AdvertisementsPages {
         }
     }
 }
+class EditAdvertise {
+    File subjectFile;
 
+    EditAdvertise(clientManager client) {
+        EditAds(client);
+    }
+    public void EditAds(clientManager client) {
+        client.sendMessage("Enter your advertise name for edit");
+        String adName = client.getMessage();
+        String fileName = adName.replaceAll("[\\/\\\\:?\"<>|*]", "");
+        subjectFile = new File("C:/Divar/users/" + client.getUsername() + "/ads/" + fileName + ".txt");
+        boolean success = false;
+        if (subjectFile.exists()) {
+            while (!success) {
+                client.sendMessage("1.Name" +
+                        "\n2.Price" +
+                        "\n3.Image address" +
+                        "\n4.Advertisement address" +
+                        "\n5.Phone number" +
+                        "\n6.Description" +
+                        "\n7.Cancel editing" +
+                        "\n\nChoose number:");
+                switch (client.getMessage()) {
+                    case "1":
+                        EditName(client);
+                        EditUpgrade(client);
+                        break;
+                    case "2":
+                        EditPrice(client);
+                        EditUpgrade(client);
+                        break;
+                    case "3":
+                        EditImageAddress(client);
+                        EditUpgrade(client);
+                        break;
+                    case "4":
+                        EditAdsAddress(client);
+                        EditUpgrade(client);
+                        break;
+                    case "5":
+                        EditPhoneNumber(client);
+                        EditUpgrade(client);
+                        break;
+                    case "6":
+                        EditDescription(client);
+                        EditUpgrade(client);
+                        break;
+                    case "7":
+                        success = true;
+                        break;
+                    default:
+                        client.sendMessage("Enter a valid number");
+                        break;
+
+                }
+            }
+        }
+    }
+
+    public void EditName(clientManager client) {
+        try {
+            client.sendMessage("Enter your new advertisement name, or type cancel:");
+            String newAdsName = client.getMessage();
+            if (newAdsName.equals("cancel"))
+                return;
+            String oldAdsName = Files.readAllLines(Paths.get(subjectFile.getPath())).get(0).substring(5);
+            editUserAd(subjectFile.getPath(), "Name:", oldAdsName, newAdsName);
+        }catch (IOException e){
+            client.sendMessage(e.toString());
+        }
+    }
+    public void EditPrice(clientManager client) {
+        try {
+            client.sendMessage("Enter your new Ads price, or type cancel:");
+            String newAdsPrice = client.getMessage();
+            if (newAdsPrice.equals("cancel"))
+                return;
+            String oldAdsPrice = Files.readAllLines(Paths.get(subjectFile.getPath())).get(1).substring(14);
+            editUserAd(subjectFile.getPath(), "Price:", oldAdsPrice, newAdsPrice);
+        }catch (IOException e){
+            client.sendMessage(e.toString());
+        }
+    }
+    public void EditImageAddress(clientManager client){
+        try {
+            client.sendMessage("Enter your new image address, or type cancel:");
+            String newImageAddress = client.getMessage();
+            if (newImageAddress.equals("cancel"))
+                return;
+            String oldImageAddress = Files.readAllLines(Paths.get(subjectFile.getPath())).get(2).substring(14);
+            editUserAd(subjectFile.getPath(), "Image address:", oldImageAddress, newImageAddress);
+        }catch (IOException e){
+            client.sendMessage(e.toString());
+        }
+    }
+    public void EditAdsAddress(clientManager client){
+        try {
+            client.sendMessage("Enter your new advertisement address, or type cancel:");
+            String newAdsAddress = client.getMessage();
+            if (newAdsAddress.equals("cancel"))
+                return;
+            String oldAdsAddress = Files.readAllLines(Paths.get(subjectFile.getPath())).get(3).substring(22);
+            editUserAd(subjectFile.getPath(), "advertisement address:", oldAdsAddress, newAdsAddress);
+        }catch (IOException e){
+            client.sendMessage(e.toString());
+        }
+    }
+    public void EditPhoneNumber(clientManager client){
+        try {
+            client.sendMessage("Enter your new phone number, or type cancel:");
+            String newPhoneNumber = client.getMessage();
+            if (newPhoneNumber.equals("cancel"))
+                return;
+            String oldPhoneNumber = Files.readAllLines(Paths.get(subjectFile.getPath())).get(4).substring(13);
+            editUserAd(subjectFile.getPath(), "Phone number:", oldPhoneNumber, newPhoneNumber);
+        }catch (IOException e){
+            client.sendMessage(e.toString());
+        }
+    }
+    public void EditDescription(clientManager client) {
+        try{
+            client.sendMessage("Enter your new Description in single line, or type cancel:");
+            String newDescription = client.getMessage();
+            if (newDescription.equals("cancel"))
+                return;
+            String oldDescription = Files.readAllLines(Paths.get(subjectFile.getPath())).get(5).substring(12);
+            editUserAd(subjectFile.getPath(), "Description:", oldDescription, newDescription);
+        }catch (IOException e){
+            client.sendMessage(e.toString());
+        }
+    }
+
+    public void EditUpgrade(clientManager client) {
+        try {
+            String lastUpgrade = LocalDateTime.now().toString();
+            client.sendMessage("Advertise Upgraded at" + lastUpgrade);
+            String oldTime = Files.readAllLines(Paths.get(subjectFile.getPath())).get(6).substring(12);
+            editUserAd(subjectFile.getPath(), "LastUpgrade:", oldTime, lastUpgrade);
+        }catch (IOException e){
+            client.sendMessage(e.toString());
+        }
+    }
+    private void editUserAd(String baseAddress,String key,String old, String New) {
+        try {
+            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(baseAddress), StandardCharsets.UTF_8));
+            for (int i = 0; i < fileContent.size(); i++) {
+                if (fileContent.get(i).equals(key + old)) {
+                    fileContent.set(i, (key + New));
+                    break;
+                }
+            }
+            Files.write(Paths.get(baseAddress), fileContent, StandardCharsets.UTF_8);
+        }catch (IOException e){
+            System.out.println(e);
+        }
+    }
+}
 class Profile {
     public void showProfile(clientManager client) {
         try {
@@ -1017,14 +1176,14 @@ class Profile {
         if (key.equals("Password:")) {
             old = Files.readAllLines(Paths.get(baseAddress)).get(1).substring(9);
         }
-        List<String> fileContent = new ArrayList<>(Files.readAllLines(Path.of(baseAddress), StandardCharsets.UTF_8));
+        List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(baseAddress), StandardCharsets.UTF_8));
         for (int i = 0; i < fileContent.size(); i++) {
             if (fileContent.get(i).equals(key+old)) {
                 fileContent.set(i,(key+New));
                 break;
             }
         }
-        Files.write(Path.of(baseAddress), fileContent, StandardCharsets.UTF_8);
+        Files.write(Paths.get(baseAddress), fileContent, StandardCharsets.UTF_8);
     }
 }
 class signIn{
@@ -1105,10 +1264,9 @@ class signOut {
 class signUp {
     public void addUser(clientManager client, String username, String password, String email){
         try {
-            File usersDir = new File("C:/Divar/users");
-            usersDir.mkdir();
-            File usersFolder = new File("C:/Divar/users/" + username);
-            usersFolder.mkdir();
+            new File("C:/Divar").mkdir();
+            new File("C:/Divar/users").mkdir();
+            new File("C:/Divar/users/" + username).mkdir();
             File file = new File("C:/Divar/users/" + username + "/profile.txt");
             file.createNewFile();
             FileWriter fw = new FileWriter(file);
@@ -1124,6 +1282,5 @@ class signUp {
         }
     }
 }
-
 
 
