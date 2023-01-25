@@ -12,53 +12,44 @@ public class Client{
     private DataOutputStream out	 = null;
     private DataInputStream in	 = null;
 
-    public Client(String address, int port)
-    {
-        try
-        {
+    public Client(String address, int port) {
+        try {
             socket = new Socket(address, port);
-            System.out.println("Connected");
+            System.out.println("Welcome to Divar!");
             br = new BufferedReader(new InputStreamReader(System.in));
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
-            System.out.println("newed");
         }
-        catch(UnknownHostException u)
-        {
+        catch(UnknownHostException u) {
             System.out.println(u);
         }
-        catch(IOException i)
-        {
+        catch(IOException i) {
             System.out.println(i);
         }
         recieve r = new recieve(in);
         r.start();
         String line = "";
         String respond = "";
-        while (!respond.equals("See You SOON!!!"))
-        {
-            try
-            {
+        while (!line.equals("exit")) {
+            try {
                 line = br.readLine();
                 out.writeUTF(line);
                 out.flush();
             }
-            catch(IOException i)
-            {
+            catch(IOException i) {
                 System.out.println(i);
             }
         }
+        System.out.println("See You SOON!!!");
         r.turnOff();
 
-        try
-        {
+        try {
             br.close();
             out.close();
             socket.close();
             in.close();
         }
-        catch(IOException i)
-        {
+        catch(IOException i) {
             System.out.println(i);
         }
     }
@@ -76,12 +67,10 @@ class recieve extends Thread{
         while(on){
             try {
                 line = in.readUTF();
+                System.out.println(line);
             } catch (IOException e) {
-                if (on) {
-                    e.printStackTrace();
-                }
             }
-            System.out.println(line);
+
         }
     }
     public void turnOff(){

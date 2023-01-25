@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -22,7 +23,7 @@ public class Server {
     public Server(int port) {
         try {
             server = new ServerSocket(port);
-            System.out.println("Server started...");
+            System.out.println("Divar is ready...");
             while (true) {
                 clientManager client =  new clientManager(server.accept(),this);
                 clients.add(client);
@@ -48,7 +49,7 @@ public class Server {
 }
 
 class clientManager extends Thread{
-    private String username,password,email,fullName = "",phoneNumber="";
+    private String username,password,email,fullName = "none",phoneNumber="none";
     private Socket socket = null;
     private DataInputStream in = null;
     private DataOutputStream out = null;
@@ -65,26 +66,28 @@ class clientManager extends Thread{
     public void run() {
         boolean exit = false;
         while (!exit) {
-            sendMessage("1.Creat Account\n2.Sign In\n3.Exit\n\nChoose a number:");
+            System.out.println(exit);
+            sendMessage("1.Creat Account\n2.Sign In\n\nChoose a number, or type exit:");
             String menu  = getMessage();
             switch (menu) {
                 case "1": {
                     //Username
                     sendMessage("Enter a Username, or type cancel:");
                     String username = getMessage();
+                    username = new setUsername().setUsername(this,username);
                     if (username.equals("cancel")) {
                         break;
                     }
-                    username = new setUsername().setUsername(this,username);
                     this.username = username;
 
                     //Password
                     sendMessage("Enter a Password, or type cancel:");
                     String password = getMessage();
+                    password = new setPassword().setPassword(this,password);
                     if (password.equals("cancel")) {
                         break;
                     }
-                    password = new setPassword().setPassword(this,password);
+
                     this.password = password;
 
                     //Email
@@ -96,26 +99,28 @@ class clientManager extends Thread{
                     email = new setEmail().setEmail(this,email);
                     this.email = email;
 
-                    new signUp().addUser(this,username, password, email);
+                    new signUp().addUser(this,this.username, this.password, this.email);
                     break;
                 }
                 case "2": {
-                    sendMessage("Enter your username, or type Cancel:");
+                    sendMessage("Enter your username, or type cancel:");
                     String username = getMessage();
                     if(username.equals("cancel")){
                         break;
                     }
-                    sendMessage("Enter your password, for Cancel press Enter:");
+                    sendMessage("Enter your password, or type cancel:");
                     String password = getMessage();
                     if(password.equals("cancel")){
                         break;
                     }
-                    boolean success = new signIn().checkUser(this);
+                    boolean success = new signIn().checkUser(this,username,password);
                     if (success) {
+                        sendMessage("Your are Signed in!");
                         this.username = username;
                         this.password = password;
                         initialSettings(username);
                         boolean mainMenu = false;
+
                         while (!mainMenu){
                             sendMessage("\n1.Project.Profile" +
                                     "\n2.Add an advertisement" +
@@ -139,15 +144,13 @@ class clientManager extends Thread{
                     }
                     break;
                 }
-                case "3":
-                    sendMessage("See You SOON!!!");
-                    exit = true;
-                    break;
+                case "exit":{
+                    exit =true;
+                    break;}
                 default:
-                    sendMessage("\n!Enter a valid number!\n");
+                    sendMessage("\n!Enter a valid value!");
                     break;
             }
-
         }
         server.deleteClient(this);
         try {
@@ -229,6 +232,7 @@ class clientManager extends Thread{
                     }
                 }
             }
+            else sendMessage("else");
         }catch (IOException e){sendMessage(e.toString());}
     }
 
@@ -244,13 +248,13 @@ class setEmail {
             try {
                 if(email.equals("cancel"))
                     break;
-                Matcher matcher = Pattern.compile("^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").matcher(email);
+                Matcher matcher = Pattern.compile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)$").matcher(email);
                 if (matcher.matches()) {
                     return email;
                 } else throw new InvalidEmailAddress();
             }catch (InvalidEmailAddress e){
                 client.sendMessage(e.toString());
-                client.sendMessage("\nEnter a valid email, or type cancel:");
+                client.sendMessage("Enter a valid email, or type cancel:");
                 email = client.getMessage();
             }catch (Exception e) {
                 client.sendMessage(e.toString());
@@ -269,14 +273,14 @@ class setPassword {
                 if (!checkSpelling(password))
                     throw new InvalidPassword("Password must include 8 lowercase characters, numbers, \n\tor can include these: @#$%^&+!?=_");
                 if (binaryNotFound(password) && aIsNotEnough(password))
-                    throw new InvalidPassword("Dose not include binary or enough 'a'!'");
+                    throw new InvalidPassword("Dose not include binary or enough 'a'!");
                 if (hasOrdered(password))
                     throw new InvalidPassword("Do not use ordered numbers!");
                 int key = new Random().nextInt(100)+1;
                 return encrypt(password,key);
             }catch (InvalidPassword e){
                 client.sendMessage(e.toString());
-                client.sendMessage("\nEnter valid password, or type cancel:");
+                client.sendMessage("Enter valid password, or type cancel:");
                 password = client.getMessage();
             }catch (Exception e){
                 System.out.println(e);
@@ -423,9 +427,10 @@ class setUsername {
                 return username;
             }catch (InvalidUsername e){
                 client.sendMessage(e.toString());
-                client.sendMessage("\nEnter a valid username, or type cancel:");
+                client.sendMessage("Enter a valid username, or type cancel:");
                 username =  client.getMessage();
             }catch (IOException e){
+                success=true;
                 client.sendMessage("There is no User!");
             }
         }while (!success);
@@ -643,19 +648,24 @@ class Profile {
                         String[] user = scanner.nextLine().split(":");
                         if (user[1].equals(username)) {
                             scanner = new Scanner(profile);
+                            client.sendMessage("\n");
+                            client.sendMessage(scanner.nextLine());//username
+                            String[] password = scanner.nextLine().split(":");
+                            String[] passKey = password[1].split("-");
+                            client.sendMessage(password[0]+":"+signIn.decrypt(passKey[0], Integer.parseInt(passKey[1])));
                             while (scanner.hasNextLine()) {
-                                while (scanner.hasNextLine()) {
-                                    client.sendMessage(scanner.nextLine());
-                                }
+                                client.sendMessage(scanner.nextLine());
                             }
-                            while (true) {
-                                client.sendMessage("\n\n1.Edit\n2.Exit\n\nChoose number:");
-                                String edit = client.getMessage();
-                                if (edit.equals("1")) {
+                            client.sendMessage("\n1.Edit\n2.Exit\n\nChoose number:");
+                            String edit = client.getMessage();
+                            switch (edit){
+                                case "1":
                                     editProfile(file.getPath() + "/profile.txt", client);
-                                } else if (edit.equals("2")) {
+                                    break;
+                                case "2":
                                     return;
-                                }
+                                default:
+                                    client.sendMessage("!Enter a valid number!");
                             }
                         }
                     }
@@ -667,31 +677,20 @@ class Profile {
     }
 
     private void editProfile(String baseAddress, clientManager client) throws IOException {
-        client.sendMessage("Edit:\n" +
-                "\t1.Username\n" +
-                "\t2.Password\n" +
-                "\t3.Email\n" +
-                "\t4.Fullname\n" +
-                "\t5.Phone number\n" +
-                "\nChoose number:");
+
         boolean success = false;
         while (!success) {
+            client.sendMessage("Edit:\n" +
+                    "\t1.Password\n" +
+                    "\t2.Email\n" +
+                    "\t3.Fullname\n" +
+                    "\t4.Phone number\n" +
+                    "\t5.Exit\n" +
+                    "\nChoose number:");
             String edit = client.getMessage();
             switch (edit) {
                 case "1":
-                    client.sendMessage("Enter a username, or type cancel:");
-                    String newUsername = new setUsername().setUsername(client,client.getMessage());
-                    if(newUsername.equals("cancel")){
-                        success=true;
-                        break;
-                    }
-                    editUserFile(baseAddress,"Username:",client.getUsername(),newUsername);
-                    client.setUsername(newUsername);
-                    success = true;
-                    break;
-
-                case "2":
-                    client.sendMessage("Enter a password, or type cancel:");
+                    client.sendMessage("Enter new password, or type cancel:");
                     String newPassword = new setPassword().setPassword(client,client.getMessage());
                     if(newPassword.equals("cancel")){
                         success=true;
@@ -699,52 +698,55 @@ class Profile {
                     }
                     editUserFile(baseAddress,"Password:",client.getPassword(),newPassword);
                     client.setPassword(newPassword);
-                    success = true;
+                    client.sendMessage("Password Successfully changed!");
                     break;
 
-                case "3":
-                    client.sendMessage("Enter an email, or type cancel:");
+                case "2":
+                    client.sendMessage("Enter new email, or type cancel:");
                     String newEmail = new setEmail().setEmail(client, client.getMessage());
                     if(newEmail.equals("cancel")){
-                        success=true;
                         break;
                     }
                     editUserFile(baseAddress,"Email:",client.getEmail(),newEmail);
-                    success = true;
+                    client.setEmail(newEmail);
+                    client.sendMessage("Email Successfully changed!");
+                    break;
+
+                case "3":
+                    client.sendMessage("Enter new fullname, or type cancel:");
+                    String newFullName = client.getMessage();
+                    if(newFullName.equals("cancel")){
+                        break;
+                    }
+                    editUserFile(baseAddress,"Full name:",client.getFullName(),newFullName);
+                    client.setFullName(newFullName);
+                    client.sendMessage("Fullname Successfully changed!");
                     break;
 
                 case "4":
-                    client.sendMessage("Enter fullname, or type cancel:");
-                    String newFullName = client.getMessage();
-                    if(newFullName.equals("cancel")){
-                        success=true;
-                        break;
-                    }
-                    editUserFile(baseAddress,"Full name",client.getFullName(),newFullName);
-                    client.setFullName(newFullName);
-                    success = true;
-                    break;
-
-                case "5":
-                    client.sendMessage("Enter phone number, or type cancel:");
+                    client.sendMessage("Enter new phone number, or type cancel:");
                     String newPhoneNumber = new SetPhoneNumber().setPhoneNumber(client, client.getMessage());
                     if(newPhoneNumber.equals("cancel")){
-                        success=true;
                         break;
                     }
                     editUserFile(baseAddress,"Phone number:",client.getPhoneNumber(),newPhoneNumber);
                     client.setPhoneNumber(newPhoneNumber);
+                    client.sendMessage("Phone number Successfully changed!");
+                    break;
+                case "5":
                     success = true;
                     break;
-
                 default:
-                    client.sendMessage("Enter a valid number:");
+                    client.sendMessage("!Enter a valid number!");
                     break;
             }
         }
     }
 
     private void editUserFile(String baseAddress,String key,String old, String New) throws IOException {
+        if (key.equals("Password:")) {
+            old = Files.readAllLines(Paths.get(baseAddress)).get(1).substring(9);
+        }
         List<String> fileContent = new ArrayList<>(Files.readAllLines(Path.of(baseAddress), StandardCharsets.UTF_8));
         for (int i = 0; i < fileContent.size(); i++) {
             if (fileContent.get(i).equals(key+old)) {
@@ -756,22 +758,21 @@ class Profile {
     }
 }
 class signIn{
-    public boolean checkUser(clientManager client) {
+    public boolean checkUser(clientManager client,String username,String password) {
         do {
             try {
                 File usersFolder = new File("C:/Divar/users");
                 if(usersFolder.exists()) {
                     File[] users = usersFolder.listFiles();
                     for (File file : Objects.requireNonNull(users)) {
-                        if (file.getName().equals(client.getUsername())) {
-                            File profile = new File("C:/Divar/users/"+client.getUsername()+"/profile.txt");
+                        if (file.getName().equals(username)) {
+                            File profile = new File("C:/Divar/users/"+username+"/profile.txt");
                             Scanner scanner = new Scanner(profile);
                             String[] user = scanner.nextLine().split(":");
                             String[] pass = scanner.nextLine().split(":");
-                            if (user[1].equals(client.getUsername())) {
+                            if (user[1].equals(username)) {
                                 String[] passKey = pass[1].split("-");
-                                if ((decrypt(passKey[0], Integer.parseInt(passKey[1]))).equals(client.getPassword())) {
-                                    client.sendMessage("Your are Signed in!\n");
+                                if ((decrypt(passKey[0], Integer.parseInt(passKey[1]))).equals(password)) {
                                     return true;
                                 }
                             }
@@ -781,12 +782,12 @@ class signIn{
                 throw new UsernameNotFound();
             }catch (UsernameNotFound e){
                 client.sendMessage(e.toString());
-                client.sendMessage("\nEnter a valid client.getUsername(), or type cancel:");
-                String username = client.getMessage();
+                client.sendMessage("Enter a valid username, or type cancel:");
+                username = client.getMessage();
                 if (username.equals("cancel"))
                     return false;
-                client.sendMessage("\nEnter a valid client.getUsername(), or type cancel:");
-                String password = client.getMessage();
+                client.sendMessage("Enter a valid password, or type cancel:");
+                password = client.getMessage();
                 if(password.equals("cancel"))
                     return false;
             } catch (Exception e){
@@ -795,14 +796,14 @@ class signIn{
         }while (true);
     }
 
-    private String decrypt(String password, int key) {
+    public static String decrypt(String password, int key) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < password.length(); i++)
             sb.append(shiftBackward(password.charAt(i), key));
         return sb.toString();
     }
 
-    private char shiftBackward(char c, int key) {
+    private static char shiftBackward(char c, int key) {
         key = key%26;
         if(Character.isLowerCase(c)) {
             if (((char) (c - key) >= 'a'))
@@ -844,8 +845,8 @@ class signUp {
             fw.write("Username:" + username +
                     "\nPassword:" + password +
                     "\nEmail:" + email +
-                    "\nFull name:" +
-                    "\nPhone number:");
+                    "\nFull name:none" +
+                    "\nPhone number:none");
             fw.flush();
             fw.close();
         }catch (Exception e){
