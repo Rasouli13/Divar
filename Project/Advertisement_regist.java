@@ -9,88 +9,89 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Advertisement_regist{
+class Advertisement_regist{
     private String imageAddress;
     private String adName;
     private String description;
     private double price;
     private String phoneNumber;
     private String adAddress;
-
     private String city;
     private LocalDateTime LastUpgrade;
+    public void addAdvertise(clientManager client) {
+        try {
+            setAdName(client);
+            setPrice(client);
+            setImageAddress(client);
+            setDescription(client);
+            setAdAddress(client);
+            setPhoneNumber(client);
+            setLastUpgrade(client);
+            String fileName = this.adName.replaceAll("[\\/\\\\:?\"<>|*]", "");
+            File adsFolder = new File("Project/Advertisements");
+            adsFolder.mkdir();
+            File file = new File("Project/Advertisements/" + fileName + ".txt");
+            file.createNewFile();
+            FileWriter fw = new FileWriter(file);
+            fw.write("Name:" + this.adName +
+                    "\nPrice:" + this.price +
+                    "\nImage address:" + this.imageAddress +
+                    "\nAdvertisement address:" + this.adAddress +
+                    "\nPhone number:" + this.phoneNumber +
+                    "\nDescription:" + this.description +
+                    "\nLastUpgrade:" + this.LastUpgrade);
+            fw.flush();
 
-    Advertisement_regist(clientManager client) throws IOException {
-        addAdvertise(client);
-    }
+            File cities = new File("Project/Advertisements/cities");
+            cities.mkdir();
+            File city = new File("Project/Advertisements/cities" + this.city);
+            city.mkdir();
+            file = new File("Project/Advertisements/cities" + this.city + "/" + fileName + ".txt");
+            file.createNewFile();
+            fw = new FileWriter(file);
+            fw.write("Name:" + this.adName +
+                    "\nPrice:" + this.price +
+                    "\nImage address:" + this.imageAddress +
+                    "\nAdvertisement address:" + this.adAddress +
+                    "\nPhone number:" + this.phoneNumber +
+                    "\nDescription:" + this.description +
+                    "\nLastUpgrade:" + this.LastUpgrade);
+            fw.flush();
 
-    public void addAdvertise(clientManager client) throws IOException {
-        setAdName();
-        setPrice();
-        setImageAddress();
-        setDescription();
-        setAdAddress();
-        setPhoneNumber();
-        String fileName = this.adName.replaceAll("[\\/\\\\:?\"<>|*]", "");
-        File adsFolder = new File("Project/Advertisements");
-        adsFolder.mkdir();
-        File file = new File("Project/Advertisements/" + fileName + ".txt");
-        file.createNewFile();
-        FileWriter fw = new FileWriter(file);
-        fw.write("Name:" + this.adName +
-                "\nPrice:" + this.price +
-                "\nImage address:" + this.imageAddress +
-                "\nAdvertisement address:" + this.adAddress +
-                "\nPhone number:" + this.phoneNumber +
-                "\nDescription:" + this.description+
-                "\nLastUpgrade:" + this.LastUpgrade);
-        fw.flush();
-        File cities=new File("Project/Advertisements/cities");
-        cities.mkdir();
-        File city=new File("Project/Advertisements/cities/"+this.city);
-        city.mkdir();
-         file = new File("Project/Advertisements/cities/"+this.city+"/"+ fileName + ".txt");
-        file.createNewFile();
-         fw = new FileWriter(file);
-        fw.write("Name:" + this.adName +
-                "\nPrice:" + this.price +
-                "\nImage address:" + this.imageAddress +
-                "\nAdvertisement address:" + this.adAddress +
-                "\nPhone number:" + this.phoneNumber +
-                "\nDescription:" + this.description+
-                "\nLastUpgrade:" + this.LastUpgrade);
-        fw.flush();
-        //adding AD to user folder
-        File[] users = new File("Project/users").listFiles();
-        for (File user : Objects.requireNonNull(users)) {
-            if (user.getName().equals(client.getUsername())) {
-                File profile = new File("Project/users/" + client.getUsername() + "/profile.txt");
-                String[] username = new Scanner(profile).nextLine().split(":");
-                if (username[1].equals(client.getUsername())) {
-                    File userAdsFolder = new File("Project/users/"+client.getUsername()+"/ads/");
-                    userAdsFolder.mkdir();
-                    File userAd = new File("Project/users/"+client.getUsername()+"/ads/"+fileName+".txt");
-                    userAd.createNewFile();
-                    fw = new FileWriter(userAd, true);
-                    fw.write("Name:" + this.adName +
-                            "\nPrice" + this.price +
-                            "\nImage address:" + this.imageAddress +
-                            "\nAdvertisement address:" + this.adAddress +
-                            "\nPhone number:" + this.phoneNumber +
-                            "\nDescription:" + this.description +
-                            "\nLastUpgrade:" + this.LastUpgrade);
-                    fw.flush();
+            //adding AD to user folder
+            File[] users = new File("Project/users").listFiles();
+            for (File user : Objects.requireNonNull(users)) {
+                if (user.getName().equals(client.getUsername())) {
+                    File profile = new File("Project/users/" + client.getUsername() + "/profile.txt");
+                    String[] username = new Scanner(profile).nextLine().split(":");
+                    if (username[1].equals(client.getUsername())) {
+                        File userAdsFolder = new File("Project/users/" + client.getUsername() + "/ads/");
+                        userAdsFolder.mkdir();
+                        File userAd = new File("Project/users/" + client.getUsername() + "/ads/" + fileName + ".txt");
+                        userAd.createNewFile();
+                        fw = new FileWriter(userAd, true);
+                        fw.write("Name:" + this.adName +
+                                "\nPrice" + this.price +
+                                "\nImage address:" + this.imageAddress +
+                                "\nAdvertisement address:" + this.adAddress +
+                                "\nPhone number:" + this.phoneNumber +
+                                "\nDescription:" + this.description +
+                                "\nLastUpgrade:" + this.LastUpgrade);
+                        fw.flush();
+                    }
                 }
             }
+            fw.close();
+        }catch (Exception e){
+            client.sendMessage(e.toString());
         }
-        fw.close();
     }
 
-    public void setAdAddress() {
+    public void setAdAddress(clientManager client) {
         boolean success = false;
         while (!success) {
             try {
-                clientManager.sendMessage("Enter Address (like-> " + "Tehran: Shahriari Square,..." + "), or type cancel:");
+                client.sendMessage("Enter Address (like-> " + "Tehran: Shahriari Square,..." + "), or type cancel:");
                 String address = new Scanner(System.in).nextLine();
                 if (address.equals("cancel")) {
                     success = true;
@@ -99,57 +100,71 @@ public class Advertisement_regist{
                 Matcher matcher = Pattern.compile("^([a-zA-Z]+: .+)").matcher(address);
                 if (!matcher.matches())
                     throw new InvalidAddress();
-                 this.city=address.substring(0,address.indexOf(':'));
+
+
+                this.city = address.substring(0,address.indexOf(':'));
                 this.adAddress = address;
                 success = true;
             } catch (InvalidAddress e) {
-                clientManager.sendMessage(e.toString());
+                client.sendMessage(e.toString());
             }
         }
     }
 
-    public void setAdName() {
-        System.out.print("Enter advertisement name, or type cancel:");
-        String command = (new Scanner(System.in).nextLine());
+    public void setAdName(clientManager client) {
+        client.sendMessage("Enter advertisement name, or type cancel:");
+        String command =client.getMessage();
         if (command.equals("cancel"))
             return;
-        this.adName = (new Scanner(System.in).nextLine());
+        this.adName = command;
     }
 
-    public void setDescription(){
-        System.out.print("Enter description, or type cancel:");
-        String command = (new Scanner(System.in).nextLine());
+    public void setDescription(clientManager client){
+        client.sendMessage("Enter description, or type cancel:");
+        String command = client.getMessage();
         if (command.equals("cancel"))
             return;
-        this.description = (new Scanner(System.in).nextLine());
+        this.description = command;
     }
 
-    public void setPrice(){
-        clientManager.sendMessage("Enter price, or type cancel:");
-        String command = (new Scanner(System.in).nextLine());
+    public void setPrice(clientManager client){
+        client.sendMessage("Enter price, or type cancel:");
+        String command = client.getMessage();
+        if (command.equals("cencel"))
+            return;
+        this.price = Double.parseDouble(command);
+    }
+
+    public void setImageAddress(clientManager client){
+        while(true){
+            try {
+                client.sendMessage("Enter image address, or type cancel:");
+                String command = client.getMessage();
+                if (command.equals("cancel"))
+                    return;
+                File imageAddress=new File(command);
+                if(imageAddress.exists()){
+                    this.imageAddress = command;
+                    return;
+                }
+                 throw new AdvertisementImageException();
+            }catch (AdvertisementImageException e){
+                System.out.println(e);
+            }
+        }
+
+    }
+
+    public void setPhoneNumber(clientManager client){
+        client.sendMessage("Enter phone number, or type cancel:");
+        String command = client.getMessage();
         if (command.equals("cancel"))
             return;
-        this.price = (new Scanner(System.in).nextDouble());
+        this.phoneNumber =new SetPhoneNumber().setPhoneNumber(client,command);
     }
 
-    public void setImageAddress(){
-        clientManager.sendMessage("Enter image address, or type cancel:");
-        String command = (new Scanner(System.in).nextLine());
-        if (command.equals("cancel"))
-            return;
-        this.imageAddress = (new Scanner(System.in).nextLine());
-    }
-
-    public void setPhoneNumber(){
-        clientManager.sendMessage("Enter phone number, or type cancel:");
-        String command = (new Scanner(System.in).nextLine());
-        if (command.equals("cancel"))
-            return;
-        this.phoneNumber = SetPhoneNumber.setPhoneNumber(command);
-    }
-
-    public void setLastUpgrade() {
+    public void setLastUpgrade(clientManager client) {
         LastUpgrade = LocalDateTime.now();
-        clientManager.sendMessage("Ad with name:" + this.adName + "Upgrade at" + LastUpgrade);
+        client.sendMessage("Ad with name:" + this.adName + "Upgrade at" + LastUpgrade);
     }
 }

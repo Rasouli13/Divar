@@ -16,7 +16,7 @@ public class setPassword {
                 if(password.equals(""))
                     break;
                 if (!checkSpelling(password))
-                    throw new InvalidPassword("Password must include 8 lowercase characters, numbers, and at least one of thsese: @#$%^&+!?=_");
+                    throw new InvalidPassword("Password must include 8 lowercase characters, numbers, and at least one of these: @#$%^&+!?=_");
                 if (binaryNotFound(password) && aIsNotEnough(password))
                     throw new InvalidPassword("Dose not include binary or enough 'a'!'");
                 if (hasOrdered(password))
@@ -40,9 +40,8 @@ public class setPassword {
 
 
     //setPassword Methods---------------------------------------------------------------------------------------------------------------------
-
     private static boolean checkSpelling(String password){
-        Matcher matcher = Pattern.compile("(?=[a-z0-9@#$%^&+!?=_]+$)^(?=.*[a-z])(?=.*[0-9])(?=.*[@#$%^&+!?=_])(?=.{8,}).*$").matcher(password);
+        Matcher matcher = Pattern.compile("(?=[a-z0-9@#$%^&+!?=_\\.]+$)^(?=.*[a-z])(?=.*[0-9])(?=.{8,}).*$").matcher(password);
         return matcher.matches();
     }
     private static boolean aIsNotEnough(String password){
